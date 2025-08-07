@@ -1,0 +1,7 @@
+<% types.forEach(({ type, relations }) => { %>
+type <%= type %>
+  relations
+<% relations.forEach(relation => { %>
+    <%= relation %>
+<% }); %>
+<% }); %>

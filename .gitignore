@@ -1,0 +1,10 @@
+.vscode/
+matter_xml/*
+!matter_xml/.gitkeep
+node_modules/
+file/xlsx/device/*
+!file/xlsx/device/.gitkeep
+file/xlsx/user/*
+!file/xlsx/user/.gitkeep
+file/model/model.fga
+.env

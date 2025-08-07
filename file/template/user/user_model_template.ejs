@@ -1,0 +1,6 @@
+type user
+<% for (const type of relationTypes) { %>
+type <%= type %>
+  relations
+    define member: [user]
+<% } %>
