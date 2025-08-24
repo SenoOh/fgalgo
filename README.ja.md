@@ -4,12 +4,12 @@ ExcelファイルやMatter仕様XMLファイルからユーザ属性とデバイ
 
 ## 主な機能
 
-- **Excelファイルからのユーザ・デバイス情報の自動読み込み**
-- **Matter仕様XMLファイルの解析とデバイスタイプ，コマンドの組を生成**
-- **Authorization Model（.fga）の自動生成**
-- **Relationship Tuples の自動生成**
-- **OpenFGA サーバへの自動デプロイ**
-- **インタラクティブなデバイス権限設定**
+- Excelファイルからのユーザ・デバイス情報の自動読み込み
+- Matter仕様XMLファイルの解析とデバイスタイプ，コマンドの組を生成
+- Authorization Model（.fga）の自動生成
+- Relationship Tuples の自動生成
+- OpenFGA サーバへの自動デプロイ
+- インタラクティブなデバイス権限設定
 
 ## 必要な環境
 
@@ -66,19 +66,19 @@ node main.js
 
 ### 実行フロー
 
-1. **ユーザ情報の処理**
+1. ユーザ情報の処理
    - Excelファイルからユーザグループとユーザ属性を読み込み
    - ユーザ用 Authorization Model を生成
    - ユーザ用 Relationship Tuples を生成
 
-2. **デバイス情報の処理**
+2. デバイス情報の処理
    - MatterデバイスタイプをJSONから読み込み
    - デバイス属性をExcelから読み込み
    - インタラクティブなデバイス設定（権限，アクション）
    - デバイス用 Authorization Model を生成
    - デバイス用 Relationship Tuples を生成
 
-3. **OpenFGAへのデプロイ**
+3. OpenFGAへのデプロイ
    - 統合された Authorization Model をOpenFGAサーバに送信
    - すべての Relationship Tuples をアップロード
 
@@ -95,9 +95,6 @@ fgalgo/
 │   ├── export/           # FGAエクスポート処理
 │   └── util/             # ユーティリティ関数
 ├── file/                 # 入力・テンプレートファイル
-│   ├── xlsx/             # Excelファイル
-│   │   ├── user/        # ユーザー関連Excel
-│   │   └── device/      # デバイス関連Excel
 │   ├── template/         # EJSテンプレート
 │   ├── model/            # FGAモデルファイル
 │   └── json/             # JSONデータファイル
@@ -114,15 +111,14 @@ fgalgo/
 | 1 | id | ID | int |
 | 2 | uid | 一意なグループ ID | string |
 | 3 | name | 人間が識別可能な名称 | string |
-| 4 | rank_group | 比較対象集合名 | string / null |
-| 5 | rank | 比較数値 | int / null |
+| 4 | parent | 親階層グループ名 | string / null |
 
 
 #### 例
-|id| uid | name | rank_group | rank |
-|--|-----|------|------------|------|
-|1| teacher | 先生のグループ | lab_rank | 1 |
-|2| doctor | 博士課程学生のグループ | lab_rank | 2 |
+|id| uid | name | parent |
+|--|-----|------|-------|
+|1| teacher | 先生のグループ |  |
+|2| doctor | 博士課程学生のグループ | teacher |
 
 ### ユーザ属性 (user_attributes.xlsx)
 #### 形式
@@ -155,7 +151,7 @@ fgalgo/
 #### 例
 | uid | name | type | room |
 |-----|------|------|----------|
-| light101 | 101号室の照明 | onofflight | room101 |
+| light101 | 101号室の照明 | onofflightswitch | room101 |
 | lock102 | 102号室のスマートロック | doorlock | room102 |
 
 

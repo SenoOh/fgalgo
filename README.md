@@ -6,12 +6,12 @@ fgalgo is a Node.js tool that automatically generates OpenFGA Authorization Mode
 
 ## Key Features
 
-- **Automatic import of user and device information from Excel files**
-- **Parsing Matter specification XML files to generate device types and command sets**
-- **Automatic generation of Authorization Models (.fga)**
-- **Automatic generation of Relationship Tuples**
-- **Automatic deployment to OpenFGA server**
-- **Interactive device permission configuration**
+- Automatic import of user and device information from Excel files
+- Parsing Matter specification XML files to generate device types and command sets
+- Automatic generation of Authorization Models (.fga)
+- Automatic generation of Relationship Tuples
+- Automatic deployment to OpenFGA server
+- Interactive device permission configuration
 
 ## Requirements
 
@@ -97,9 +97,6 @@ fgalgo/
 │   ├── export/           # FGA export processing
 │   └── util/             # Utility functions
 ├── file/                 # Input and template files
-│   ├── xlsx/             # Excel files
-│   │   ├── user/        # User-related Excel files
-│   │   └── device/      # Device-related Excel files
 │   ├── template/         # EJS templates
 │   ├── model/            # FGA model files
 │   └── json/             # JSON data files
@@ -116,14 +113,13 @@ fgalgo/
 | 1 | id | ID | int |
 | 2 | uid | Unique group ID | string |
 | 3 | name | Human-readable name | string |
-| 4 | rank_group | Comparison target set name | string / null |
-| 5 | rank | Comparison value | int / null |
+| 4 | parent | Parent hierarchy group name | string / null |
 
 #### Example
-|id| uid | name | rank_group | rank |
-|--|-----|------|------------|------|
-|1| teacher | Teacher Group | lab_rank | 1 |
-|2| doctor | PhD Student Group | lab_rank | 2 |
+|id| uid | name | parent |
+|--|-----|------|-------|
+|1| teacher | Teacher Group |  |
+|2| doctor | PhD Student Group | teacher |
 
 ### User Attributes (user_attributes.xlsx)
 #### Format
@@ -154,7 +150,7 @@ fgalgo/
 #### Example
 | uid | name | type | room |
 |-----|------|------|----------|
-| light101 | Room 101 Light | onofflight | room101 |
+| light101 | Room 101 Light | onofflightswitch | room101 |
 | lock102 | Room 102 Smart Lock | doorlock | room102 |
 
 ## Dependencies
