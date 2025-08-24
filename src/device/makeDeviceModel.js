@@ -38,7 +38,7 @@ async function processRolesAndActions(roles, actions, type, matterDeviceTypeJson
         let formattedRole = role;
 
         if (["admin", "junior", "guest"].includes(role)) {
-            const defaultTypes = ["user", "group"];
+            const defaultTypes = ["user", "group#member"];
             const mergedTypes = [...new Set([...defaultTypes, ...uniqueRoleTypes])];
             formattedRoleTypes = `[${mergedTypes.join(', ')}]`;
         } else if (role === "room") {

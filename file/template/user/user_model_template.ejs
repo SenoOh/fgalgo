@@ -2,5 +2,6 @@ type user
 <% for (const type of relationTypes) { %>
 type <%= type %>
   relations
-    define member: [user]
+    define member: [user] or member from parent
+    define parent: [group]
 <% } %>

@@ -1,7 +1,8 @@
-export async function makeUserTuple(json) {
+export async function makeUserTuple(userAttrJson, userGroupsJson) {
     const tuples = []
 
-    for (const user of json) {
+    // ユーザー属性からタプルを生成
+    for (const user of userAttrJson) {
         const userId = user.uid
         for (const [key, value] of Object.entries(user)) {
         if (key === 'id' || key === 'uid' || key === 'name') continue
@@ -18,5 +19,17 @@ export async function makeUserTuple(json) {
         }
         }
     }
+
+    // グループ間の親子関係からタプルを生成
+    for (const group of userGroupsJson) {
+        if (group.parent && group.parent.trim() !== '') {
+            tuples.push({
+                user: `group:${group.parent}`,
+                relation: 'parent',
+                object: `group:${group.uid}`
+            })
+        }
+    }
+
     return tuples;
 }

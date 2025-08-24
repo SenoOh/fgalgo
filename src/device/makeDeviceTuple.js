@@ -29,8 +29,10 @@ function generateTupleJson(userAttrJson, result) {
         for (const [relation, users] of Object.entries(roles)) {
             for (const user of users) {
                 const userType = getUserType(userAttrJson, user); // ユーザータイプを取得
+                console.log(`  User: ${user}, Type: ${userType}`);
+                const userField = userType === 'group' ? `${userType}:${user}#member` : `${userType}:${user}`;
                 const tuple = {
-                    user: `${userType}:${user}`,
+                    user: userField,
                     relation: relation === 'room' ? 'has_device' : relation, // room を has_device に変換
                     object: `${type}:${deviceName}` // <type>:<device> を生成
                 };
