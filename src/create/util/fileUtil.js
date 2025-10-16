@@ -74,6 +74,8 @@ export async function promptExcelPath(promptMessage) {
         } catch (err) {
             console.error(`✗ ファイルが見つかりません: ${filePath}`);
             console.error('正確なファイルパスを入力してください。');
+            // 再度入力を求める前に少し間隔を空ける
+            console.log('');
         }
     }
 

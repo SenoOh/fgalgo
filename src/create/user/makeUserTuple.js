@@ -1,7 +1,7 @@
 export async function makeUserTuple(userAttrJson, userGroupsJson) {
     const tuples = []
 
-    // ユーザー属性からタプルを生成
+    // ユーザ属性からタプルを生成
     for (const user of userAttrJson) {
         const userId = user.uid
         for (const [key, value] of Object.entries(user)) {

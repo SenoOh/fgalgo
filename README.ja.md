@@ -90,7 +90,7 @@ fgalgo/
 ├── package.json           
 ├── .env                   # 環境変数設定
 ├── src/                   # ソースコード
-│   ├── user/             # ユーザー関連処理
+│   ├── user/             # ユーザ関連処理
 │   ├── device/           # デバイス関連処理
 │   ├── export/           # FGAエクスポート処理
 │   └── util/             # ユーティリティ関数

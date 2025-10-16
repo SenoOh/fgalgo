@@ -16,7 +16,7 @@ const openFga = new OpenFgaClient({
     }
 });
 
-const projectRootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../');
+const projectRootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../../');
 const modelFilePath = path.join(projectRootDir, 'file/model/model.fga');
 
 // ファイルを連結して書き込む関数

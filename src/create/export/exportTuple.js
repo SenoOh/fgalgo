@@ -25,12 +25,12 @@ async function listAllTuplesWithModelId(id) {
                 continuationToken,
             });
 
-            console.log("Fetched count:", response.tuples?.length || 0);
-            console.log("Continuation token:", response.continuation_token);
+            // console.log("Fetched count:", response.tuples?.length || 0);
+            // console.log("Continuation token:", response.continuation_token);
 
             // タプルが存在しない場合は終了
             if (!response?.tuples || response.tuples.length === 0) {
-                console.log('削除対象のタプルは見つかりませんでした。全件削除完了。');
+                // console.log('削除対象のタプルは見つかりませんでした。全件削除完了。');
                 break;
             }
 
@@ -42,7 +42,7 @@ async function listAllTuplesWithModelId(id) {
                 condition: tuple.key.condition || undefined,
             }));
 
-            console.log(`deleteTuples:\n ${JSON.stringify(deleteTuples, null, 2)}`);
+            // console.log(`deleteTuples:\n ${JSON.stringify(deleteTuples, null, 2)}`);
 
             // タプルを削除
             await openFga.write({
@@ -51,7 +51,7 @@ async function listAllTuplesWithModelId(id) {
                 authorizationModelId: id,
             });
 
-            console.log(`削除完了: ${deleteTuples.length} 件のタプルを削除しました。`);
+            // console.log(`削除完了: ${deleteTuples.length} 件のタプルを削除しました。`);
 
             totalDeletedCount += deleteTuples.length;
 

@@ -1,61 +1,13 @@
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-
-// 作成処理のインポート
-import createMain from './src/create/index.js';
-
-// 更新処理のインポート
-import { fetchAndSaveData } from './src/update/api/openFgaClient.js';
-import { analyzeStatistics, printStatistics } from './src/update/cli/statisticsAnalyzer.js';
-import { runInteractiveCLI } from './src/update/cli/interactiveCli.js';
 import dotenv from 'dotenv';
+import { fetchAndSaveData } from './api/openFgaClient.js';
+import { analyzeStatistics, printStatistics } from './cli/statisticsAnalyzer.js';
+import { runInteractiveCLI } from './cli/interactiveCli.js';
+import chalk from 'chalk';
 
 // 環境変数を読み込み
 dotenv.config();
 
 async function main() {
-  try {
-    console.log(chalk.blue.bold('=== OpenFGA 設定管理ツール ==='));
-    console.log('');
-
-    // ユーザーに操作を選択させる
-    const { operation } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'operation',
-        message: '実行する操作を選択してください:',
-        choices: [
-          {
-            name: '🆕 新しいOpenFGA設定を作成する',
-            value: 'create'
-          },
-          {
-            name: '🔄 既存のOpenFGA設定を更新・分析する',
-            value: 'update'
-          }
-        ]
-      }
-    ]);
-
-    console.log('');
-
-    if (operation === 'create') {
-      // 作成処理を実行
-      console.log(chalk.green('新しいOpenFGA設定の作成を開始します...'));
-      console.log('');
-      await createMain();
-    } else if (operation === 'update') {
-      // 更新処理を実行
-      await runUpdateProcess();
-    }
-
-  } catch (error) {
-    console.error(chalk.red('エラーが発生しました:'), error.message);
-    process.exit(1);
-  }
-}
-
-async function runUpdateProcess() {
   try {
     // 環境変数から設定を取得
     const apiUrl = process.env.FGA_API_URL;
@@ -104,10 +56,12 @@ async function runUpdateProcess() {
     await runInteractiveCLI(statistics, openFGAData, openFGAConfig);
     
   } catch (error) {
-    console.error(chalk.red('更新処理でエラーが発生しました:'), error.message);
-    throw error;
+    console.error(chalk.red('エラーが発生しました:'), error.message);
+    process.exit(1);
   }
 }
 
-// メイン関数を実行
-main();
+// ファイルが直接実行された場合のみmain()を実行
+if (import.meta.url === `file://${process.argv[1]}`) {
+    main();
+}

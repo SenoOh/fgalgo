@@ -1,7 +1,7 @@
 // デバイスのタイプを変換する関数
 function convertDeviceType(deviceSetupInfo, deviceTypeMapJson) {
-    console.log(`\ndeviceSetupInfo:\n`, JSON.stringify(deviceSetupInfo, null, 2));
-    console.log(`\ndeviceTypeMapJson:\n`, JSON.stringify(deviceTypeMapJson, null, 2));
+    // console.log(`\ndeviceSetupInfo:\n`, JSON.stringify(deviceSetupInfo, null, 2));
+    // console.log(`\ndeviceTypeMapJson:\n`, JSON.stringify(deviceTypeMapJson, null, 2));
     const typeMap = {};
     deviceTypeMapJson.forEach(entry => {
         entry.typeset.forEach(device => {
@@ -24,12 +24,12 @@ function generateTupleJson(userAttrJson, result) {
 
     for (const device of result) {
         const { device: deviceName, type, roles } = device;
-        console.log(`Processing device: ${deviceName}, type: ${type}, roles:`, roles);
+        // console.log(`Processing device: ${deviceName}, type: ${type}, roles:`, roles);
 
         for (const [relation, users] of Object.entries(roles)) {
             for (const user of users) {
-                const userType = getUserType(userAttrJson, user); // ユーザータイプを取得
-                console.log(`  User: ${user}, Type: ${userType}`);
+                const userType = getUserType(userAttrJson, user); // ユーザタイプを取得
+                // console.log(`  User: ${user}, Type: ${userType}`);
                 const userField = userType === 'group' ? `${userType}:${user}#member` : `${userType}:${user}`;
                 const tuple = {
                     user: userField,
@@ -47,7 +47,7 @@ function generateTupleJson(userAttrJson, result) {
 // ユーザタイプを取得する関数
 function getUserType(json, value) {
     try {
-        // 各ユーザーのプロパティを動的にチェック
+        // 各ユーザのプロパティを動的にチェック
         for (const user of json) {
             for (const [key, val] of Object.entries(user)) {
                 if (Array.isArray(val)) {
@@ -75,7 +75,7 @@ function getUserType(json, value) {
 export function makeDeviceTuple(deviceSetupInfo, deviceTypeMapJson, userAttrJson) {
     try {
         const result = convertDeviceType(deviceSetupInfo, deviceTypeMapJson);
-        console.log(`\n変換後のデバイス情報:\n`, JSON.stringify(result, null, 2));
+        // console.log(`\n変換後のデバイス情報:\n`, JSON.stringify(result, null, 2));
         const deviceTupleJson = generateTupleJson(userAttrJson, result);
         return deviceTupleJson;
     } catch (error) {

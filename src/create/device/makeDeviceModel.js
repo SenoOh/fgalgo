@@ -3,7 +3,7 @@ import ejs from 'ejs';
 
 function getUserType(json, value) {
     try {
-        // 各ユーザーのプロパティを動的にチェック
+        // 各ユーザのプロパティを動的にチェック
         for (const user of json) {
             for (const [key, val] of Object.entries(user)) {
                 if (Array.isArray(val)) {
@@ -69,7 +69,7 @@ async function processRolesAndActions(roles, actions, type, matterDeviceTypeJson
         }
     }
 
-    console.log(`relations:\n${relations}\n\n\n`);
+    // console.log(`relations:\n${relations}\n\n\n`);
     const seen = new Set();
     const uniqueElements = [];
     for (const elem of relations) {
@@ -136,7 +136,7 @@ function refineModelFGA(modelFGA, deviceTypeList) {
     // 2. devicetypeMap を基にリファクタリング
     const typeMapping = new Map();
     for (const [devicetype, groupedRelations] of devicetypeMap.entries()) {
-        console.log(`Processing devicetype: ${devicetype}`);
+        // console.log(`Processing devicetype: ${devicetype}`);
         let typeCounter = 1;
         const typeOccurrences = []; // devicetype に関連する type の一覧
 
@@ -145,19 +145,19 @@ function refineModelFGA(modelFGA, deviceTypeList) {
             typeOccurrences.push(...typeList);
         }
 
-        console.log(`devicetype: ${devicetype}, typeOccurrences: ${typeOccurrences}`);
+        // console.log(`devicetype: ${devicetype}, typeOccurrences: ${typeOccurrences}`);
         // 通常の処理: devicetype に関連する type をリファクタリング
         
         for (const [relationsKey, typeList] of groupedRelations.entries()) {
-            console.log(`relationsKey: ${relationsKey}, typeList: ${typeList}`);
+            // console.log(`relationsKey: ${relationsKey}, typeList: ${typeList}`);
             if (typeList.length === 1) {
-                console.log(`一意な type: ${typeList[0]}`);
+                // console.log(`一意な type: ${typeList[0]}`);
                 // 一意な type をそのまま使用
                 result.push(`type ${typeList[0]}`);
                 typeMapping.set(typeList[0], typeList[0]); 
             } else {
                 // グループ化された type に共通の名前を付ける
-                console.log(`グループ化された type: ${typeList}`);
+                // console.log(`グループ化された type: ${typeList}`);
                 const commonType = `${devicetype}_${typeCounter}`;
                 typeMapping.set(commonType, typeList); 
                 typeCounter++;
@@ -172,10 +172,10 @@ function refineModelFGA(modelFGA, deviceTypeList) {
             }
         }
     }
-    console.log("=== typeMapping の内容 ===");
+    // console.log("=== typeMapping の内容 ===");
     for (const [outputTypeName, originalTypes] of typeMapping.entries()) {
-        console.log(`出力用 type: ${outputTypeName}`);
-        console.log(`  対応する元の type: ${JSON.stringify(originalTypes)}`);
+        // console.log(`出力用 type: ${outputTypeName}`);
+        // console.log(`  対応する元の type: ${JSON.stringify(originalTypes)}`);
     }
     const typeMappingJson = [];
 
@@ -186,19 +186,19 @@ function refineModelFGA(modelFGA, deviceTypeList) {
         });
     }
 
-    console.log("=== typeMapping の JSON ===");
-    console.log(JSON.stringify(typeMappingJson, null, 2)); 
+    // console.log("=== typeMapping の JSON ===");
+    // console.log(JSON.stringify(typeMappingJson, null, 2)); 
 
     let resultlist = result.join('\n');
     // console.log(`resultlist: ${resultlist}`);
 
     
     const typeLines = resultlist.split('\n').filter(line => line.startsWith('type '));
-    console.log(`typeLines: ${typeLines}`);
+    // console.log(`typeLines: ${typeLines}`);
     
     let fix_result = resultlist;
 
-    console.log(`devicetypes: ${deviceTypeList}`);
+    // console.log(`devicetypes: ${deviceTypeList}`);
     let transformed = typeMappingJson.map(entry => {
         const newTypeset = entry.typeset.map(t => {
             const lastUnderscoreIndex = t.lastIndexOf("_");
@@ -212,15 +212,15 @@ function refineModelFGA(modelFGA, deviceTypeList) {
 
     for (const dtype of deviceTypeList) {
         const regex = new RegExp(`^type ${dtype}_(\\d+)$`);
-        console.log(`dtype: ${dtype}, regex: ${regex}`);
+        // console.log(`dtype: ${dtype}, regex: ${regex}`);
         const matches = typeLines.filter(line => regex.test(line));
         if (matches.length === 1) {
             const originalLine = matches[0].trim();             // 例: "type doorlock_1"
-            console.log(`originalLine: ${originalLine}`);
+            // console.log(`originalLine: ${originalLine}`);
             const replacedLine = `type ${dtype}`;               // 例: "type doorlock"
-            console.log(`replacedLine: ${replacedLine}`);
+            // console.log(`replacedLine: ${replacedLine}`);
             const pattern = new RegExp(`^${originalLine}`, 'm');
-            console.log(`pattern: ${pattern}`);
+            // console.log(`pattern: ${pattern}`);
             fix_result = fix_result.replace(pattern, replacedLine);
             
             let chenged = transformed.map(entry => {
@@ -231,12 +231,12 @@ function refineModelFGA(modelFGA, deviceTypeList) {
                 };
             });
             transformed = chenged;
-            console.log(`chenged: ${JSON.stringify(chenged, null, 2)}`);
+            // console.log(`chenged: ${JSON.stringify(chenged, null, 2)}`);
         }
     }
-    console.log(`transformed: ${JSON.stringify(transformed, null, 2)}`);
+    // console.log(`transformed: ${JSON.stringify(transformed, null, 2)}`);
     
-    console.log(`fix_resultの中のtype:${fix_result.split('\n').filter(line => line.startsWith('type '))}`);
+    // console.log(`fix_resultの中のtype:${fix_result.split('\n').filter(line => line.startsWith('type '))}`);
 
     return { transformed, fix_result };
 }

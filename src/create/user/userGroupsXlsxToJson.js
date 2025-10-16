@@ -29,7 +29,7 @@ export async function groupXlsxToJson(filename) {
 
         rows.push(rowData);
     });
-    console.log(`rows:\n ${rows}`);
+    // console.log(`rows:\n ${rows}`);
     return rows;
 }
 
