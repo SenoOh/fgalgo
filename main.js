@@ -11,7 +11,7 @@ import { runInteractiveCLI } from './src/update/cli/interactiveCli.js';
 import dotenv from 'dotenv';
 
 // 環境変数を読み込み
-dotenv.config();
+dotenv.config({ quiet: true });
 
 async function main() {
   try {

@@ -29,12 +29,32 @@ export class FGAClient {
     }
 
     /**
-     * Relationship Tuplesを取得
+     * Relationship Tuplesを取得（ページネーション対応）
+     * @param {number} pageSize - 1ページあたりの取得件数（デフォルト: 50）
      * @returns {Promise<Array>} Relationship Tuples
      */
-    async getRelationshipTuples() {
-        const response = await this.fgaApi.read();
-        return response.tuples;
+    async getRelationshipTuples(pageSize = 50) {
+        let allTuples = [];
+        let continuationToken = undefined;
+        let page = 1;
+
+        do {
+            const response = await this.fgaApi.read({}, {
+                pageSize: pageSize,
+                continuationToken: continuationToken,
+            });
+
+            if (response.tuples && response.tuples.length > 0) {
+                allTuples.push(...response.tuples);
+            }
+
+            continuationToken = response.continuation_token;
+            page++;
+
+        } while (continuationToken);
+
+        console.log(`Relationship Tuples: ${allTuples.length} 件取得`);
+        return allTuples;
     }
 
     /**

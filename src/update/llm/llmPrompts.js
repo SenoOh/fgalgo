@@ -93,7 +93,7 @@ OpenFGAのRelationship Tuplesを管理する専門家として，
 - **⚠️ 大文字小文字を厳密に一致させてください！** can_On と can_on は異なるrelationです
 
 **🔤 relation命名規則（重要）:**
-- can_〇〇 形式のrelation名は，devicetype.jsonのcommands名に "can_" を付与したものです
+- can_〇〇 形式のrelation名は，devicetype.jsonのattribute名やcommands名に "can_" を付与したものです
 - commands名の大文字小文字がそのまま継承されます
 - 例: commands: "On" → relation: "can_On" （Oは大文字）
 - 例: commands: "Off" → relation: "can_Off" （Oは大文字）
@@ -177,7 +177,7 @@ Authorization Modelの現在の設定:
 ]
 
 注意: can_Onとcan_Offは大文字のOで，can_onやcan_offではありません
-理由: relation名 "can_〇〇" は devicetype.jsonのcommands名に "can_" を付与したもの
+理由: relation名 "can_〇〇" は devicetype.jsonのattribute名やcommands名に "can_" を付与したもの
      commands: "On" → relation: "can_On" （大文字小文字がそのまま継承される）
 
 **完全な実例2: 権限剥奪（DELETE操作）**
@@ -479,7 +479,7 @@ DELETE操作を行う場合は，{tupleOperations}および{context}に記載さ
 - **⚠️ 大文字小文字を厳密に一致させてください！** can_On と can_on は異なるrelationです
 
 **🔤 relation命名規則（重要）:**
-- can_〇〇 形式のrelation名は，devicetype.jsonのcommands名に "can_" を付与したものです
+- can_〇〇 形式のrelation名は，devicetype.jsonのattribute名やcommands名に "can_" を付与したものです
 - commands名の大文字小文字がそのまま継承されます
 - 例: commands: "On" → relation: "can_On" （Oは大文字）
 - 例: commands: "Off" → relation: "can_Off" （Oは大文字）

@@ -27,6 +27,30 @@ export async function groupXlsxToJson(filename) {
         rowData[header] = value;
         });
 
+        // すべての列の値にハイフンが含まれているかチェック（再帰的に確認）
+        for (const [key, value] of Object.entries(rowData)) {
+            const checkHyphen = (val, fieldName) => {
+                if (typeof val === 'string' && val.includes('-')) {
+                    console.error('\x1b[31m%s\x1b[0m', `\nエラー: ${fieldName}にハイフン（-）が含まれています: "${val}"`);
+                    console.error('\x1b[33m%s\x1b[0m', `\n修正方法:`);
+                    console.error('  Excelファイルを開いて、以下のように修正してください:');
+                    const corrected = val.replace(/-/g, '_');
+                    console.error(`    "${val}" → "${corrected}"`);
+                    console.error('\n  ハイフン（-）をアンダースコア（_）に置き換えてください。');
+                    console.error(`  ファイル: ${filename}`);
+                    console.error(`  列: ${key}`);
+                    console.error(`  行番号: ${rowNumber}\n`);
+                    process.exit(1);
+                } else if (Array.isArray(val)) {
+                    val.forEach((item, index) => {
+                        checkHyphen(item, `${fieldName}[${index}]`);
+                    });
+                }
+            };
+            
+            checkHyphen(value, key);
+        }
+
         rows.push(rowData);
     });
     // console.log(`rows:\n ${rows}`);

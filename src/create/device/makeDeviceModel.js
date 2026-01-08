@@ -53,19 +53,34 @@ async function processRolesAndActions(roles, actions, type, matterDeviceTypeJson
     }
 
     // actions を処理
+    const customActions = new Set();
     for (const [action, roleExpression] of Object.entries(actions)) {
         if (action === "can_action") {
             relations.push(`define ${action}: ${roleExpression}`);
         } else {
             relations.push(`define can_${action}: ${roleExpression}`);
+            customActions.add(action); // カスタム設定されたアクションを記録
         }
     }
 
-    // devicetype.json から commands を追加
+    // devicetype.json から commands と attributes を追加（カスタム設定済みを除く）
     const matchingDeviceType = matterDeviceTypeJson.find(dt => dt.devicetype === type);
-    if (matchingDeviceType && Array.isArray(matchingDeviceType.commands)) {
-        for (const command of matchingDeviceType.commands) {
-            relations.push(`define can_${command}: can_action`);
+    if (matchingDeviceType) {
+        // commands を追加（カスタム設定されていないもののみ）
+        if (Array.isArray(matchingDeviceType.commands)) {
+            for (const command of matchingDeviceType.commands) {
+                if (!customActions.has(command)) {
+                    relations.push(`define can_${command}: can_action`);
+                }
+            }
+        }
+        // attributes を追加（カスタム設定されていないもののみ）
+        if (Array.isArray(matchingDeviceType.attributes)) {
+            for (const attribute of matchingDeviceType.attributes) {
+                if (!customActions.has(attribute)) {
+                    relations.push(`define can_${attribute}: can_action`);
+                }
+            }
         }
     }
 
@@ -89,7 +104,7 @@ async function processRolesAndActions(roles, actions, type, matterDeviceTypeJson
 
 function refineModelFGA(modelFGA, deviceTypeList) {
     const lines = modelFGA.split('\n');
-    const typeRegex = /^type\s+(\w+)_([\w\d]+)$/; // `type` 行を検出する正規表現 (例: switch101_onofflightswitch)
+    const typeRegex = /^type\s+([\w\d]+)_([\w\d_]+)$/; // `type` 行を検出する正規表現 (例: light105_onofflightswitch, aircon105_room_airconditioner)
     const devicetypeMap = new Map(); // devicetype ごとに relations をグループ化
     const result = [];
     let currentType = null;
@@ -199,8 +214,25 @@ function refineModelFGA(modelFGA, deviceTypeList) {
     let fix_result = resultlist;
 
     // console.log(`devicetypes: ${deviceTypeList}`);
+    
+    // deviceTypeListを正規化（ハイフンをアンダースコアに変換）
+    const normalizedDeviceTypeList = deviceTypeList.map(dt => dt.replace(/-/g, '_'));
+    
     let transformed = typeMappingJson.map(entry => {
         const newTypeset = entry.typeset.map(t => {
+            // デバイス名_デバイスタイプ の形式から、デバイス名部分のみを抽出
+            // 例: light105_onofflightswitch -> light105
+            // 例: aircon105_room_airconditioner -> aircon105
+            
+            // すべての正規化されたデバイスタイプに対してマッチングを試みる
+            for (const deviceType of normalizedDeviceTypeList) {
+                const suffix = `_${deviceType}`;
+                if (t.endsWith(suffix)) {
+                    return t.slice(0, -suffix.length);
+                }
+            }
+            
+            // マッチしない場合は、最後のアンダースコアで分割（フォールバック）
             const lastUnderscoreIndex = t.lastIndexOf("_");
             return lastUnderscoreIndex !== -1 ? t.slice(0, lastUnderscoreIndex) : t;
         });
@@ -255,8 +287,11 @@ export async function makeDeviceModel(deviceSetupInfo, matterDeviceTypeJson, use
 
             const relations = await processRolesAndActions(roles, actions, type, matterDeviceTypeJson, userAttrJson);
 
+            // デバイスタイプ名のハイフンをアンダースコアに変換
+            const normalizedType = type.replace(/-/g, '_');
+
             // デバイスごとに <device_type> を作成
-            types.push({ type: `${deviceName}_${type}`, relations });
+            types.push({ type: `${deviceName}_${normalizedType}`, relations });
         }
 
 

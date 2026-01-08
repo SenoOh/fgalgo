@@ -86,23 +86,25 @@ async function getAllExistingTuples(client) {
     try {
         console.log(chalk.gray('  📊 既存のTuplesを取得中...'));
         
-        const tuples = [];
+        let allTuples = [];
         let continuationToken = undefined;
+        const pageSize = 50;
         
         do {
-            const response = await client.read({
-                continuation_token: continuationToken
+            const response = await client.read({}, {
+                pageSize: pageSize,
+                continuationToken: continuationToken,
             });
             
             if (response.tuples && response.tuples.length > 0) {
-                tuples.push(...response.tuples);
+                allTuples.push(...response.tuples);
             }
             
             continuationToken = response.continuation_token;
         } while (continuationToken);
         
-        console.log(chalk.gray(`  📊 既存Tuple数: ${tuples.length}`));
-        return tuples;
+        console.log(chalk.gray(`  📊 既存Tuple数: ${allTuples.length}`));
+        return allTuples;
     } catch (error) {
         console.log(chalk.red(`  ❌ 既存Tuple取得エラー: ${error.message}`));
         throw error;

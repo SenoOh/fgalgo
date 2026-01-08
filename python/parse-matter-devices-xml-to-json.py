@@ -29,10 +29,12 @@ def create_cluster_dict(cluster):
     name = cluster.get('name', 'Unknown Cluster')
     cluster_id = cluster.get('id', 'Unknown ID').lower()
     commands = cluster.get('commands', [])
+    attributes = cluster.get('attributes', [])
     data = {
         "id": cluster_id,
         "name": name,
-        "commands": commands
+        "commands": commands,
+        "attributes": attributes
     }
     return data
 
@@ -77,6 +79,7 @@ def parse_cluster_info(cluster_elem):
         "name": cluster_elem.findtext("name"),
         "id": cluster_elem.findtext("code").lower(),
         "commands": [],
+        "attributes": [],
     }
 
     for cmd in cluster_elem.findall("command"):
@@ -92,6 +95,15 @@ def parse_cluster_info(cluster_elem):
         #         "type": arg.get("type"),
         #     })
         cluster["commands"].append(command)
+
+    for attr in cluster_elem.findall("attribute"):
+        attr_name = attr.text.strip() if attr.text else attr.get("define", "Unknown").strip()
+        if attr_name:  # 空文字列でない場合のみ追加
+            attribute = {
+                "code": attr.get("code"),
+                "name": attr_name,
+            }
+            cluster["attributes"].append(attribute)
 
     return cluster
 
@@ -221,7 +233,7 @@ for device in filtered_data_with_clusters_removed:
         'id': device['id'],
         'name': device['name'],
         'clusters': [
-            cluster for cluster in device['clusters'] if cluster['commands']
+            cluster for cluster in device['clusters'] if cluster['commands'] or cluster['attributes']
         ]
     }
     filtered_non_cluster.append(filtered_device)
@@ -247,7 +259,7 @@ for device in filtered_non_devicetype:
     print(device['name'])
 
 
-template_file_path = os.path.join(os.path.join(base_dir, "../file/json/device"), "devicetype.json")
+template_file_path = os.path.join(os.path.join(base_dir, "../file/json/matter"), "devicetype.json")
 
 # すべてのデバイスタイプを格納するリスト
 all_devices_data = []
@@ -256,17 +268,27 @@ for device in filtered_non_devicetype:
     # デバイスタイプ名を生成
     device_name = device['name'].replace('MA-', '').replace(" ", "_").lower()
 
-    # コマンド名を抽出
+    # コマンド名とアトリビュート名を抽出
     command_names = set()
+    attribute_names = set()
+    
     for cluster in device['clusters']:
+        # コマンドを追加
         for command in cluster['commands']:
-            command_names.add(command['name'])
+            if command['name'] and command['name'].strip():
+                command_names.add(command['name'].strip())
+        # アトリビュートを追加
+        for attribute in cluster['attributes']:
+            if attribute['name'] and attribute['name'].strip():
+                attribute_names.add(attribute['name'].strip())
             
     command_names = list(sorted(command_names))
+    attribute_names = list(sorted(attribute_names))
 
     # JSONデータを生成
     json_data = {
         "devicetype": device_name,
+        "attributes": attribute_names,
         "commands": command_names
     }
 

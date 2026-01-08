@@ -3,7 +3,8 @@ import path from 'path';
 import { spawn } from 'child_process';
 import { OpenFgaClient, CredentialsMethod } from '@openfga/sdk';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ quiet: true });
+
 
 const openFga = new OpenFgaClient({
     apiUrl: process.env.FGA_API_URL,

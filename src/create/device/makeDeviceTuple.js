@@ -26,6 +26,9 @@ function generateTupleJson(userAttrJson, result) {
         const { device: deviceName, type, roles } = device;
         // console.log(`Processing device: ${deviceName}, type: ${type}, roles:`, roles);
 
+        // デバイスタイプ名のハイフンをアンダースコアに変換
+        const normalizedType = type.replace(/-/g, '_');
+
         for (const [relation, users] of Object.entries(roles)) {
             for (const user of users) {
                 const userType = getUserType(userAttrJson, user); // ユーザタイプを取得
@@ -34,7 +37,7 @@ function generateTupleJson(userAttrJson, result) {
                 const tuple = {
                     user: userField,
                     relation: relation === 'room' ? 'has_device' : relation, // room を has_device に変換
-                    object: `${type}:${deviceName}` // <type>:<device> を生成
+                    object: `${normalizedType}:${deviceName}` // <type>:<device> を生成（ハイフンをアンダースコアに変換）
                 };
                 tuples.push(tuple);
             }

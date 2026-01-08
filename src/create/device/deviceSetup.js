@@ -58,7 +58,14 @@ function getDeviceActions(json, type){
         const matchedDevice = json.find(device => device.devicetype === type);
         
         if (matchedDevice) {
-            return matchedDevice.commands;
+            // commands と attributes をタイプ情報付きで返す
+            const commands = matchedDevice.commands || [];
+            const attributes = matchedDevice.attributes || [];
+            
+            const commandsWithType = commands.map(cmd => ({ name: cmd, type: 'command' }));
+            const attributesWithType = attributes.map(attr => ({ name: attr, type: 'attribute' }));
+            
+            return [...commandsWithType, ...attributesWithType];
         } else {
             process.stdout.write(`指定された type (${type}) に一致するデバイスが見つかりませんでした。`);
             return [];
@@ -217,8 +224,8 @@ async function setupActions(json, type) {
         if (currentStep === 2) {
             // Step 2b: カスタム設定 - アクション選択
             const choices = possibleActions.map(action => ({
-                name: action,
-                value: action
+                name: `${action.name} [${action.type === 'command' ? 'Command' : 'Attribute'}]`,
+                value: action.name
             }));
             choices.push({ name: '⬅️  前の選択に戻る', value: '__BACK__' });
 
@@ -283,7 +290,7 @@ async function setupActions(json, type) {
             // 全てのアクション設定が完了した場合
             if (actionStep === selectedActions.length) {
                 // 未選択のアクションのデフォルト権限設定
-                const unselectedActions = possibleActions.filter(act => !selectedActions.includes(act));
+                const unselectedActions = possibleActions.filter(act => !selectedActions.includes(act.name));
                 
                 if (unselectedActions.length > 0) {
                     const defaultRoleAnswer = await inquirer.prompt({

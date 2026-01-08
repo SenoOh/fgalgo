@@ -1,6 +1,7 @@
 import { OpenFgaClient, CredentialsMethod } from '@openfga/sdk';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ quiet: true });
+
 
 const openFga = new OpenFgaClient({
     apiUrl: process.env.FGA_API_URL,
@@ -15,69 +16,89 @@ const openFga = new OpenFgaClient({
 
 async function listAllTuplesWithModelId(id) {
     try {
-        let totalDeletedCount = 0;
+        let allTuples = [];
         let continuationToken = undefined;
+        const pageSize = 100;
 
         do {
-            // タプルを取得
-            const response = await openFga.read({
-                pageSize: 100,
-                continuationToken,
+            const response = await openFga.read({}, {
+                pageSize: pageSize,
+                continuationToken: continuationToken,
             });
 
-            // console.log("Fetched count:", response.tuples?.length || 0);
-            // console.log("Continuation token:", response.continuation_token);
-
-            // タプルが存在しない場合は終了
-            if (!response?.tuples || response.tuples.length === 0) {
-                // console.log('削除対象のタプルは見つかりませんでした。全件削除完了。');
-                break;
+            if (response.tuples && response.tuples.length > 0) {
+                allTuples.push(...response.tuples);
             }
 
-            // 削除対象のタプルを準備
-            const deleteTuples = response.tuples.map(tuple => ({
-                user: tuple.key.user,
-                relation: tuple.key.relation,
-                object: tuple.key.object,
-                condition: tuple.key.condition || undefined,
-            }));
-
-            // console.log(`deleteTuples:\n ${JSON.stringify(deleteTuples, null, 2)}`);
-
-            // タプルを削除
-            await openFga.write({
-                deletes: deleteTuples,
-            }, {
-                authorizationModelId: id,
-            });
-
-            // console.log(`削除完了: ${deleteTuples.length} 件のタプルを削除しました。`);
-
-            totalDeletedCount += deleteTuples.length;
-
-            // 次のページのトークンを取得
             continuationToken = response.continuation_token;
 
         } while (continuationToken);
 
-        // console.log(`全件削除完了: 合計 ${totalDeletedCount} 件のタプルを削除しました`);
+        console.log(`削除対象タプル: ${allTuples.length} 件取得`);
+
+        if (allTuples.length === 0) {
+            return;
+        }
+
+        // 削除対象のタプルを準備
+        const deleteTuples = allTuples.map(tuple => ({
+            user: tuple.key.user,
+            relation: tuple.key.relation,
+            object: tuple.key.object,
+            condition: tuple.key.condition || undefined,
+        }));
+
+        // 100個ずつのバッチに分割して削除
+        const BATCH_SIZE = 100;
+        let totalDeleted = 0;
+
+        for (let i = 0; i < deleteTuples.length; i += BATCH_SIZE) {
+            const batch = deleteTuples.slice(i, i + BATCH_SIZE);
+
+            await openFga.write({
+                deletes: batch,
+            }, {
+                authorizationModelId: id,
+            });
+
+            totalDeleted += batch.length;
+        }
+
+        console.log(`削除完了: ${totalDeleted} 件のタプルを削除しました`);
     } catch (error) {
         console.error('タプルの削除中にエラーが発生しました:', error?.response?.data || error);
-        throw error; // エラーを上位に伝える
+        throw error;
     }
 }
 
 export async function exportTupleToFGA(userTuple, deviceTuple, modelID) {
     try {
         const combined = [...userTuple, ...deviceTuple];
+        console.log(`合計 ${combined.length} 件のタプルを書き込みます`);
+        
+        // 既存のタプルを削除
         await listAllTuplesWithModelId(modelID);
-        const { created_tuples: tuples } = await openFga.write({
-            writes: combined,
-        }, {
-            authorizationModelId: modelID
-        });
+        
+        // 100個ずつのバッチに分割して書き込み
+        const BATCH_SIZE = 100;
+        let totalWritten = 0;
+        
+        for (let i = 0; i < combined.length; i += BATCH_SIZE) {
+            const batch = combined.slice(i, i + BATCH_SIZE);
+            
+            await openFga.write({
+                writes: batch,
+            }, {
+                authorizationModelId: modelID
+            });
+            
+            totalWritten += batch.length;
+            console.log(`進捗: ${totalWritten} / ${combined.length} 件のタプルを書き込みました`);
+        }
+        
+        console.log(`完了: 合計 ${totalWritten} 件のタプルを書き込みました`);
     }
     catch (error) {
-        console.error('モデルの生成中にエラーが発生しました:', error);
+        console.error('タプルの生成中にエラーが発生しました:', error);
     }
 }

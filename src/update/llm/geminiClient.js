@@ -8,7 +8,8 @@ import dotenv from 'dotenv';
 import { PromptBuilder } from './llmPrompts.js';
 
 // 環境変数を読み込み
-dotenv.config();
+dotenv.config({ quiet: true });
+
 
 /**
  * Gemini APIクライアントクラス
