@@ -59,7 +59,15 @@ FGA_API_TOKEN=your-api-token
 GEMINI_API_KEY=your-gemini-api-key
 ```
 
-### 4. Prepare Input Files
+### 4. OpenFGA Server Environment Setup
+
+Set up OpenFGA on Docker:
+
+```bash
+docker compose up -d
+```
+
+### 5. Prepare Input Files
 
 Place the following files in the appropriate directories:
 

@@ -23,7 +23,7 @@ ExcelファイルやMatter仕様XMLファイルからユーザ属性とデバイ
 - Node.js (v18以上推奨)
 - python3
 - OpenFGA CLI (`fga` コマンド)
-- OpenFGA サーバ
+- OpenFGA サーバ (docker上で構築)
 
 ## セットアップ
 
@@ -57,7 +57,13 @@ FGA_API_TOKEN=your-api-token
 GEMINI_API_KEY=your-gemini-api-key
 ```
 
-### 4. 入力ファイルの準備
+### 4. OpenFGA サーバの環境構築
+OpenFGA を Docker で立ち上げる
+```bash
+docker compose up -d
+```
+
+### 5. 入力ファイルの準備
 
 以下のファイルを適切なディレクトリに配置する：
 
